@@ -8,6 +8,7 @@ import {interval, Subscription} from 'rxjs'
 export class HathiDownloader {
     private downloaderState: DownloaderState
     private intervalNumber = 500
+    private defaultInterval = 5;
     private interval = interval(this.intervalNumber)
     private downloadSeed: DownloadSeed
     private basicBookInfo: BasicBookInfo
@@ -17,7 +18,6 @@ export class HathiDownloader {
     private progressSubscription: Subscription;
     private allFinished: boolean = false;
     private stopNow: boolean = false;
-    private lastDownloadTimeStamp: number = 0;
     private downloadInterval: number;
 
     constructor(downloadSeed: DownloadSeed, basicBookInfo: BasicBookInfo) {
@@ -25,11 +25,27 @@ export class HathiDownloader {
         this.basicBookInfo = basicBookInfo
         this.SetDownloadFolder = this.SetDownloadFolder.bind(this)
         chrome.downloads.onDeterminingFilename.removeListener(this.SetDownloadFolder)
+        if (!chrome.downloads.onDeterminingFilename.hasListeners()) {
         chrome.downloads.onDeterminingFilename.addListener(this.SetDownloadFolder);
-        this.ResetDownloadInterval(4)
-        this.SetDownloaderState(DownloaderState.IDLE)
+        }
+        this.ResetDownloadInterval(this.defaultInterval)
+        this.SetDownloaderState(DownloaderState.READY)
     }
 
+    ResetAll() {
+        this.ResetCurrentItem()
+        this.ResetDownloadInterval(this.defaultInterval)
+        this.ResetCurrentPageNumber()
+        this.ResetDownloadIds()
+        this.allFinished= false
+        this.stopNow = false
+    }
+    ResetCurrentPageNumber() {
+        this.currentPageNumber = 1
+    }
+    ResetDownloadIds() {
+        this.downloadIds = []
+    }
     SetDownloaderState(state: DownloaderState) {
         this.downloaderState = state
     }
@@ -41,7 +57,7 @@ export class HathiDownloader {
             console.log('Reporting progress every second', this.getCurrentProgress())
             if (this.getCurrentProgress() === 1) {
                 this.downloadInterval--
-                if (this.downloadInterval === 0) {
+                if (this.downloadInterval <= 0) {
                     console.log('CurrentDownload Finished')
                     this.StopSingleDownloadProgress()
                     this.ResetCurrentItemAndDownloadInterval()
@@ -54,6 +70,8 @@ export class HathiDownloader {
 
     StopDownload() {
         this.stopNow = true;
+        this.downloadInterval = 0
+
     }
     private ResetCurrentItem() {
         this.currentDownload = null
@@ -155,9 +173,11 @@ export class HathiDownloader {
     private StopAllProgress() {
         this.StopSingleDownloadProgress()
         this.SetDownloaderState(DownloaderState.STOPPED);
+
     }
 
     StartDownload() {
+        this.ResetAll()
         console.log('DOWNLOADER STARTED DOWNLOAD')
         this.currentPageNumber = 1
         this.SetDownloaderState(DownloaderState.DOWNLOADING)
@@ -177,7 +197,7 @@ export class HathiDownloader {
 
 
 export enum DownloaderState {
-    'IDLE'= 'IDLE',
+    'READY'= 'READY',
     'DOWNLOADING' = 'DOWNLOADING',
     'STOPPED' = 'STOPPED',
     'ALLFINISHED' = 'ALLFINISHED'

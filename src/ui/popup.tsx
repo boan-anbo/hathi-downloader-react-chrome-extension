@@ -34,8 +34,8 @@ const Progress = (props: {
     progressReport: ProgressReport
 }) => {
     return (<div>
-        <ProgressBar intent={Intent.SUCCESS} value={ props.progressReport.allPageProgress }/>
-        ( { props.progressReport.currentPage } / {props.progressReport.allPages })
+        <ProgressBar intent={Intent.SUCCESS} value={ props.progressReport?.allPageProgress }/>
+        ( { props.progressReport?.currentPage } / {props.progressReport?.allPages })
     </div>)
 }
 
@@ -74,6 +74,10 @@ class Popup extends React.Component<{},
 
     componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any) {
         console.log('POP UP DETECTED CHANGEEEE', this.state)
+    }
+
+    componentWillUnmount() {
+        this.progressCheckSubscription?.unsubscribe()
     }
 
     componentDidMount() {

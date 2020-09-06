@@ -17,14 +17,10 @@ export class HathiService {
 
         return result[0].textContent
     }
-    createBanner() {
-        let banner = document.createElement ('div');
-        banner.innerHTML = `<div><p id='bannerMessageG'></p></div>`
-        document.body.insertBefore(banner, document.body.firstChild);
-    }
+
 
     getDocumentId() {
-        let documentId = this.doc.URL.match(/id=(.{3}).([\d\w]*)/)
+        let documentId = this.doc.URL.match(/id=(.{3,4})\.(.*?)&/)
         if (documentId) {
             return [documentId[1], documentId[2]]
         }
@@ -71,28 +67,4 @@ export class HathiService {
         }
     }
 
-    // Your code here...
-    //alert(getUrl(1))
-
-
-
-    // startDownload(startPage, endPage, interval) {
-    //     let loopNumber = endPage - startPage + 1
-    //
-    //     function task(i, currentPage) {
-    //         setTimeout(function() {
-    //             let currentPage = startPage + i
-    //             downloadOnePage(currentPage)
-    //             let timeRemain = parseInt((endPage - currentPage + 1) * (interval / 1000) / 60)
-    //             let progress = `[Download progress: ${startPage + i} / ${this.totalPageNumber}]<br>[Download Time Remaining: ${timeRemain} Minutes]`
-    //             showOnBanner(progress)
-    //         }, interval * i);
-    //     }
-    //
-    //     for (let i=0; i<loopNumber; i++) {
-    //         task(i);
-    //     }
-    //
-    //
-    // }
 }
