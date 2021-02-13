@@ -7,8 +7,8 @@ import {interval, Subscription} from 'rxjs'
 
 export class HathiDownloader {
     private downloaderState: DownloaderState
-    private intervalNumber = 500
-    private defaultInterval = 5;
+    private intervalNumber = 800
+    private defaultInterval = 8;
     private interval = interval(this.intervalNumber)
     private downloadSeed: DownloadSeed
     private basicBookInfo: BasicBookInfo
@@ -79,7 +79,7 @@ export class HathiDownloader {
     }
     private ResetCurrentItemAndDownloadInterval() {
         this.ResetCurrentItem();
-        this.ResetDownloadInterval(4);
+        this.ResetDownloadInterval(8);
 
     }
     private StopSingleDownloadProgress() {

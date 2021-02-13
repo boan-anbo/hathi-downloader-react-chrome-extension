@@ -63,7 +63,7 @@ export class HathiService {
     getUrl(sequence) {
         let documentId = this.getDocumentId()
         if (documentId) {
-            return `https://babel.hathitrust.org/cgi/imgsrv/image?id=${documentId[0]}.${documentId[1]};seq=${sequence};size=100;rotation=0`
+            return `https://babel.hathitrust.org/cgi/imgsrv/image?id=${documentId[0]}.${documentId[1]};seq=${sequence};size=1000;rotation=0`
         }
     }
 
