@@ -2,8 +2,10 @@ export class HathiService {
     constructor(doc) {
         this.doc = doc
     }
+
     totalPageNumber: any;
     doc: Document;
+
     //}
 
     getTotalPageNumber(): number {
@@ -12,7 +14,7 @@ export class HathiService {
 
     }
 
-    getBookTitle(): string{
+    getBookTitle(): string {
         const result = this.doc.querySelectorAll('[itemprop=name]');
 
         return result[0].textContent
@@ -38,7 +40,7 @@ export class HathiService {
 
     }
 
-    getImageDownloadFileName(pageNumber: number){
+    getImageDownloadFileName(pageNumber: number) {
         let docTitle = this.getBookTitle()
         // docTitle = docTitle.split(' ')
         docTitle = this.SanitizerFileName(docTitle)
@@ -53,18 +55,4 @@ export class HathiService {
         docTitle = this.SanitizerFileName(docTitle)
         return docTitle;
     }
-    getAllUrls(): string[] {
-        const allUrls = []
-        for (let i=1; i <= this.getTotalPageNumber(); i++) {
-            allUrls.push(this.getUrl(i))
-        }
-        return allUrls
-    }
-    getUrl(sequence) {
-        let documentId = this.getDocumentId()
-        if (documentId) {
-            return `https://babel.hathitrust.org/cgi/imgsrv/image?id=${documentId[0]}.${documentId[1]};seq=${sequence};size=1000;rotation=0`
-        }
-    }
-
 }

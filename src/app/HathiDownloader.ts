@@ -4,6 +4,8 @@ import {DownloadEntry, DownloadSeed, ProgressReport} from "../ui/popui.const";
 import {BasicBookInfo} from "./entities";
 
 import {interval, Subscription} from 'rxjs'
+import {DownloadOption} from "./Gift";
+import {HathiService} from "./HathiService";
 
 export class HathiDownloader {
     private downloaderState: DownloaderState
@@ -19,6 +21,7 @@ export class HathiDownloader {
     private allFinished: boolean = false;
     private stopNow: boolean = false;
     private downloadInterval: number;
+    private resolution: number = 300;
 
     constructor(downloadSeed: DownloadSeed, basicBookInfo: BasicBookInfo) {
         this.downloadSeed = downloadSeed
@@ -79,16 +82,14 @@ export class HathiDownloader {
     }
     private ResetCurrentItemAndDownloadInterval() {
         this.ResetCurrentItem();
-        this.ResetDownloadInterval(8);
+        this.ResetDownloadInterval(this.defaultInterval);
 
     }
     private StopSingleDownloadProgress() {
         this.progressSubscription?.unsubscribe()
     }
 
-    getAllUrls(): string[] {
-        return this.downloadSeed.allUrls
-    }
+
     private getPath(): string {
         return this.downloadSeed.path
     }
@@ -130,7 +131,7 @@ export class HathiDownloader {
 
     private getCurrentItem = (): DownloadEntry => {
         return {
-            url: this.getAllUrls()[this.currentPageNumber - 1],
+            url: this.getAllUrls(this.resolution)[this.currentPageNumber - 1],
             filename: this.basicBookInfo.downloadPath + ' - ' + this.currentPageNumber,
             saveAs: false
         }
@@ -176,10 +177,17 @@ export class HathiDownloader {
 
     }
 
-    StartDownload() {
+    StartDownload(downloadOption?: DownloadOption) {
         this.ResetAll()
         console.log('DOWNLOADER STARTED DOWNLOAD')
         this.currentPageNumber = 1
+        if (downloadOption) {
+        this.currentPageNumber = downloadOption.startingPage ?? 1
+        this.defaultInterval = downloadOption.interval ?? this.defaultInterval
+        this.resolution = downloadOption.resolution ?? 300;
+        }
+        console.warn("Starting Download", downloadOption)
+        console.warn("Download Seed", this.downloadSeed)
         this.SetDownloaderState(DownloaderState.DOWNLOADING)
         this.DownloadOne(this.getCurrentItem(), this.getCurrentPageNumber())
 
@@ -192,6 +200,22 @@ export class HathiDownloader {
     private getTotalPageNumber() {
 
         return this.basicBookInfo.pages
+    }
+
+
+
+    getAllUrls(resolution: number): string[] {
+        const allUrls = []
+        for (let i=1; i <= this.getTotalPageNumber(); i++) {
+            allUrls.push(this.getUrl(i, resolution))
+        }
+        return allUrls
+    }
+    getUrl(sequence, resolution) {
+        let documentId = this.downloadSeed.documentId;
+        if (documentId) {
+            return `https://babel.hathitrust.org/cgi/imgsrv/image?id=${documentId[0]}.${documentId[1]};seq=${sequence};size=${resolution};rotation=0`
+        }
     }
 }
 

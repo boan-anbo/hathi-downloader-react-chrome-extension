@@ -1,4 +1,4 @@
-import {Gift} from "./Gift";
+import {DownloadOption, Gift} from "./Gift";
 import {HathiService} from "./HathiService";
 
 import {BasicBookInfo} from "./entities";
@@ -7,29 +7,30 @@ import {DownloadEntry, DownloadSeed, GiftInstruction, GiftTypes, ProgressReport}
 
 
 console.log('HEY I FOUND THIS IS A HATHI WEBSITE', document)
-const hathi = new HathiService(document)
+const hathiService = new HathiService(document)
 
-console.log('PAGE Number', hathi.getBookTitle())
-
-console.log('Image Path', hathi.getUrl(1))
+console.log('PAGE Number', hathiService.getBookTitle())
 
 
-const firspageUrl = hathi.getUrl(1)
-const allUrls: string [] = hathi.getAllUrls();
+
+// const firspageUrl = hathiService.getUrl(1)
 
 
 
 const basicBookInfo: BasicBookInfo = {
-    title: hathi.getBookTitle(),
-    pages: hathi.getTotalPageNumber(),
-    downloadPath: hathi.getImageDownloadPath()
+    title: hathiService.getBookTitle(),
+    pages: hathiService.getTotalPageNumber(),
+    downloadPath: hathiService.getImageDownloadPath()
 }
 
 SendToBackground(basicBookInfo, 'BasicBookInfo');
 
 const downloadSeed: DownloadSeed = {
-    allUrls: hathi.getAllUrls(),
-        path: hathi.getImageDownloadPath()}
+   path: hathiService.getImageDownloadPath(),
+   documentId: hathiService.getDocumentId(),
+
+
+}
 
 
 SendToBackground({
@@ -38,11 +39,11 @@ SendToBackground({
 }, 'DownloadSeed')
 
 
-const downloadEntry = {
-    url: firspageUrl,
-    filename: hathi.getImageDownloadFileName(1),
-    saveAs: false
-}
+// const downloadEntry = {
+//     url: firspageUrl,
+//     filename: hathiService.getImageDownloadFileName(1),
+//     saveAs: false
+// }
 
 
 
@@ -63,7 +64,7 @@ chrome.runtime.onMessage.addListener((message: Gift, sender, sendResponse) => {
         case "DownloadAll":
             if (message.recipient === 'Background') {
                 console.log(`Im Content, I am forwarding Popup's download all instruction to the Background`)
-                SendInstructionToBackground('DownloadAll')
+                SendInstructionToBackground('DownloadAll', message.downloadOptions  )
                 break;
             }
         case "ReportProgress":
@@ -92,11 +93,13 @@ chrome.runtime.onMessage.addListener((message: Gift, sender, sendResponse) => {
     return true;
 })
 
-function SendInstructionToBackground(instruction: GiftInstruction, sendResponseToPopup?: (response: any) => void ) {
+function SendInstructionToBackground(instruction: GiftInstruction, downloadOption?: DownloadOption, sendResponseToPopup?: (response: any) => void ) {
     const gift = new Gift({
         instruction: instruction,
         from: "Content",
         recipient: "Background"
+        ,
+        downloadOptions: downloadOption ?? undefined
     })
     chrome.runtime.sendMessage(gift, (reply) => {
         console.log(`I HEARD RESPONSE FROM BACKGROUND, about ${instruction}`, reply)

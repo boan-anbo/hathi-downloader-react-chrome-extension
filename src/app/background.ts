@@ -28,7 +28,8 @@ chrome.runtime.onMessage.addListener(
             case "DownloadAll":
                 console.warn('BACKGROUND RECEIVED INSTRUCTION TO DOWNLOAD ALLLLL', hathiDownloader)
                 if (hathiDownloader) {
-                    hathiDownloader.StartDownload()
+                    console.log('HathiDownload Exists', hathiDownloader)
+                    hathiDownloader.StartDownload(gift.downloadOptions)
                 }
                 break;
             case "ReportProgress":

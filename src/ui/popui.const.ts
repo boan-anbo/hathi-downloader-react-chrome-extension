@@ -1,6 +1,7 @@
 import {Gift} from "../app/Gift";
 import DownloadItem = chrome.downloads.DownloadItem;
 import {DownloaderState} from "../app/HathiDownloader";
+import {HathiService} from "../app/HathiService";
 
 export const standardGift: Gift = {
     instruction: "Get",
@@ -17,8 +18,9 @@ export type GiftInstruction = 'Get' | 'Push' | 'DownloadSeed' | 'DownloadAll' | 
 
 
 export interface DownloadSeed {
-    allUrls: string[],
+    // allUrls: string[],
     path: string
+    documentId: string[]
 }
 
 

@@ -50,7 +50,10 @@ class Popup extends React.Component<{},
     currentState: DownloadState,
     basicBookInfo: BasicBookInfo,
     progressReport: ProgressReport,
-    progressCheckTimer: Observable<number>
+    progressCheckTimer: Observable<number>,
+        startingPage: number,
+        resolution: number,
+       interval: number
     }
     > {
 
@@ -67,9 +70,16 @@ class Popup extends React.Component<{},
 
             },
             progressReport: new ProgressReport(),
-            progressCheckTimer: interval(1000)
+            progressCheckTimer: interval(1000),
+            startingPage: 1
+            ,
+            resolution: 300,
+            interval: 4,
         }
-    this.SendMessageToCurrentContentTab = this.SendMessageToCurrentContentTab.bind(this);
+        this.SendMessageToCurrentContentTab = this.SendMessageToCurrentContentTab.bind(this);
+        this.setStartingPage = this.setStartingPage.bind(this);
+        this.setResolution = this.setResolution.bind(this);
+        this.setInterval = this.setInterval.bind(this);
     }
 
     componentDidUpdate(prevProps: Readonly<{}>, prevState: Readonly<{}>, snapshot?: any) {
@@ -141,6 +151,13 @@ class Popup extends React.Component<{},
     SendMessageToCurrentContentTab = (gift: Gift) => {
         console.log('I am in Popup, I am sending', standardGift, 'to content')
         const fetchReport = this.FetchProgressReport
+
+        gift.downloadOptions = {
+            resolution: this.state.resolution,
+            interval: this.state.interval,
+            startingPage: this.state.startingPage
+        }
+
         chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
 
             chrome.tabs.sendMessage(
@@ -169,11 +186,25 @@ class Popup extends React.Component<{},
 
             <div className="popup-padded">
 
-
+                <div>Hello</div>
                 <CurrentState currentState={ this.state.currentState } />
                 { this.IsBookInfoComplete() && <div>
                 <Title title={ this.state.basicBookInfo.title } />
                 <PageNumber pageNumber={ this.state.basicBookInfo.pages } />
+                <div>Starting Page: <input type='number' max={this.state.basicBookInfo.pages} min={1} value={this.state.startingPage} onChange={this.setStartingPage} /></div>
+                <div>Resolution: <input type='number' max={1000} min={100} value={this.state.resolution} onChange={this.setResolution} />
+                <span><button onClick={() => this.updateResolution(50)}>50</button>
+                    <button onClick={() => this.updateResolution(100)}>100</button>
+                    <button onClick={() => this.updateResolution(150)}>150</button>
+                    <button onClick={() => this.updateResolution(200)}>200</button>
+                    <button onClick={() => this.updateResolution(250)}>250</button>
+                    <button onClick={() => this.updateResolution(300)}>300</button>
+                    <button onClick={() => this.updateResolution(400)}>400</button>
+                    <button onClick={() => this.updateResolution(500)}>500</button>
+                    <button onClick={() => this.updateResolution(600)}>600</button>
+                </span>
+                </div>
+                <div>Interval: <input type='number' max={1000} min={2} value={this.state.interval} onChange={this.setInterval} /></div>
                 <DownloadPath downloadPath={ this.state.basicBookInfo.downloadPath } />
                 <Progress progressReport={ this.state.progressReport } />
                 </div>
@@ -195,6 +226,20 @@ class Popup extends React.Component<{},
     }
 
 
+
+
+    public setResolution(event) {
+        this.setState({resolution: event.target.value});
+    }
+    public setInterval(event) {
+        this.setState({interval: event.target.value});
+    }
+    public setStartingPage(event) {
+        this.setState({startingPage: event.target.value});
+    }
+    private updateResolution(number) {
+        this.setState({resolution: number})
+    }
 }
 
 // --------------
